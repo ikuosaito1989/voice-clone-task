@@ -38,6 +38,33 @@ NOTEBOOKS = {
 TERMINAL = ("complete", "error", "cancel")
 
 
+def pending_has_items() -> bool:
+    """R2 の pending.json を見て処理対象があるか返す。
+
+    R2 認証は環境変数から取る（GitHub Secrets 経由）:
+      R2_ACCOUNT_ID / R2_ACCESS_KEY / R2_SECRET_KEY / R2_BUCKET_NAME
+    取得に失敗したら「不明」として True を返す（fail-open。取りこぼしを避ける）。
+    """
+    import os
+
+    import boto3
+
+    try:
+        account = os.environ["R2_ACCOUNT_ID"]
+        s3 = boto3.client(
+            "s3",
+            endpoint_url=f"https://{account}.r2.cloudflarestorage.com",
+            aws_access_key_id=os.environ["R2_ACCESS_KEY"],
+            aws_secret_access_key=os.environ["R2_SECRET_KEY"],
+        )
+        res = s3.get_object(Bucket=os.environ["R2_BUCKET_NAME"], Key="pending.json")
+        data = json.loads(res["Body"].read().decode("utf-8"))
+        return bool(data and data.get("items"))
+    except Exception as e:  # noqa: BLE001 - チェック失敗時は起動側に倒す
+        print(f"pending チェックに失敗（起動を継続）: {type(e).__name__}: {e}")
+        return True
+
+
 def build_metadata(slug: str, code_file: str, gpu: bool) -> dict:
     return {
         "id": f"{USER}/{slug}",
@@ -74,7 +101,17 @@ def main() -> None:
         action="store_true",
         help="前回の実行がまだ終わっていなければトリガーせずにスキップする",
     )
+    ap.add_argument(
+        "--skip-if-empty",
+        action="store_true",
+        help="R2 の pending が 0 件なら Kaggle を起動せずにスキップする",
+    )
     args = ap.parse_args()
+
+    # pending が空なら Kaggle を起動しない（GPU クォータを一切使わない）
+    if args.skip_if_empty and not pending_has_items():
+        print("skip: pending 0件のため Kaggle を起動しません")
+        return
 
     # 認証は import 時ではなく明示的に行う（未設定なら分かりやすく落ちる）
     from kaggle.api.kaggle_api_extended import KaggleApi

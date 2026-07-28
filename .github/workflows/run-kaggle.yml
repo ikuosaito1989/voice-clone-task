@@ -33,15 +33,21 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Kaggle API
-        run: pip install --quiet kaggle
+      - name: Install deps
+        run: pip install --quiet kaggle boto3
 
       - name: Trigger Save & Run All
         env:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+          # R2 の pending を起動前にチェックするための認証（空なら Kaggle を起動しない）
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY: ${{ secrets.R2_ACCESS_KEY }}
+          R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
         run: |
           python automation/run_notebook.py \
             "${{ github.event.inputs.notebook || 't4' }}" \
+            --skip-if-empty \
             --skip-if-busy \
             ${{ github.event.inputs.no_gpu == 'true' && '--no-gpu' || '' }}
