@@ -1,0 +1,46 @@
+name: Run Kaggle notebook
+
+# スケジュール実行 ＋ 手動実行
+on:
+  schedule:
+    # cron は UTC。下記は「毎日 00:00 UTC = 日本時間 09:00」。
+    # 頻度を変えるにはこの行を編集する（例: 毎時 -> "0 * * * *"）。
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+    inputs:
+      notebook:
+        description: "実行するノートブック"
+        type: choice
+        default: t4
+        options: [t4, main]
+      no_gpu:
+        description: "GPU を使わない"
+        type: boolean
+        default: false
+
+# 同時実行を抑止（前回が走っている間は待つ／新しい方を優先しない）
+concurrency:
+  group: run-kaggle
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Kaggle API
+        run: pip install --quiet kaggle
+
+      - name: Trigger Save & Run All
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+        run: |
+          python automation/run_notebook.py \
+            "${{ github.event.inputs.notebook || 't4' }}" \
+            ${{ github.event.inputs.no_gpu == 'true' && '--no-gpu' || '' }}
