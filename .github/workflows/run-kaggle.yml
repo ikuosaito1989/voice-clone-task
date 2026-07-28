@@ -3,9 +3,10 @@ name: Run Kaggle notebook
 # スケジュール実行 ＋ 手動実行
 on:
   schedule:
-    # cron は UTC。5分おきに実行（GitHub Actions のスケジュール最短間隔）。
+    # cron は UTC。10分間隔だが、混雑するキリの良い時刻(:00,:10..)を避けて
+    # 分をずらしている（GitHub のスケジュール遅延・ドロップを軽減する狙い）。
     # 空なら --skip-if-empty、実行中なら --skip-if-busy でスキップする。
-    - cron: "*/5 * * * *"
+    - cron: "3,13,23,33,43,53 * * * *"
   workflow_dispatch:
     inputs:
       notebook:
