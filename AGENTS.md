@@ -1,21 +1,20 @@
 # voice-clone-task
 
-Kaggle Notebook を GitHub 連携（Push/Pull）で管理しているリポジトリ。
+Kaggle Notebook のソースを管理するリポジトリ。
+Kaggle への反映は **`.ipynb` を File Import** で行う（GitHub の Push/Pull 連携は使っていない）。
 
 ## ファイル構成
 
 | ファイル | 役割 |
 |---|---|
-| `voice-clone-task` / `voice-clone-task-by-T4` | **本体**。拡張子なしだが中身は ipynb（JSON）。Kaggle が Push/Pull で同期する対象 |
-| `voice-clone-task.ipynb` / `voice-clone-task-by-T4.ipynb` | 上記のコピー。ローカルでの閲覧・編集、Kaggle の File Import 用 |
+| `voice-clone-task.ipynb` | 本番ノートブック（唯一の実体）。編集はこれに対して行う |
+| `voice-clone-task-by-T4.ipynb` | T4 GPU 向けノートブック |
 
-Kaggle 連携はファイル名の**完全一致**で紐付いているため、**拡張子なしファイルはリネームしない**こと（連携が壊れる）。
+> 以前あった拡張子なしファイル（Kaggle の GitHub 連携用）は廃止済み。`.ipynb` が正。
 
 ## 編集ルール
 
-- **拡張子なしの本体が「正」**（Kaggle 連携の基準がこちらのため）。
-- ノートブックを編集したら、対応する `.ipynb` コピーも同じ内容に揃える
-  （例: `cp voice-clone-task voice-clone-task.ipynb`）。厳密な自動同期はしていないので、コミット前に手動で揃える。
+- 編集対象は **`.ipynb` ファイルそのもの**。編集したら Kaggle に File Import で読み込ませる。
 - JSON を直接いじるときは構造を壊さないよう注意。整形の推奨形式は
   **インデント付き JSON ＋ 各セルの `source` を行ごとの配列**（Kaggle も読める標準 ipynb）。
 
@@ -25,3 +24,7 @@ Kaggle 連携はファイル名の**完全一致**で紐付いているため、
 
 - Webhook URL は Kaggle Secrets の `webhook_url` から取得（コードに直書きしない）。
 - 新しい Notebook にも通知を入れる場合は、既存の `notify_slack()` と同じ形を踏襲する。
+
+## 生成タイムアウト
+
+`generate_voice_clone()` が 10 分を超えたら `signal.alarm` で `GenerationTimeout` を送出し、その item をスキップ（Slack 通知 ＋ `POST /api/voice_clones/{id}/fail` を呼ぶ ＋ 掃除 ＋ `continue`）。逐次・単一 GPU 前提。
