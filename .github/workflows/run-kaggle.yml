@@ -3,9 +3,9 @@ name: Run Kaggle notebook
 # スケジュール実行 ＋ 手動実行
 on:
   schedule:
-    # cron は UTC。下記は「毎日 00:00 UTC = 日本時間 09:00」。
-    # 頻度を変えるにはこの行を編集する（例: 毎時 -> "0 * * * *"）。
-    - cron: "0 0 * * *"
+    # cron は UTC。毎時0分に実行（1日24回）。
+    # 頻度を変えるにはこの行を編集する（例: 3時間おき -> "0 */3 * * *"）。
+    - cron: "0 * * * *"
   workflow_dispatch:
     inputs:
       notebook:
