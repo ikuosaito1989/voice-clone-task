@@ -1,37 +1,26 @@
 {
- "metadata": {
-  "kernelspec": {
-   "language": "python",
-   "display_name": "Python 3",
-   "name": "python3"
-  },
-  "language_info": {
-   "name": "python",
-   "version": "3.12.13",
-   "mimetype": "text/x-python",
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "pygments_lexer": "ipython3",
-   "nbconvert_exporter": "python",
-   "file_extension": ".py"
-  },
-  "kaggle": {
-   "accelerator": "nvidiaTeslaT4",
-   "dataSources": [],
-   "dockerImageVersionId": 31430,
-   "isInternetEnabled": true,
-   "language": "python",
-   "sourceType": "notebook",
-   "isGpuEnabled": true
-  }
- },
- "nbformat_minor": 4,
- "nbformat": 4,
  "cells": [
   {
    "cell_type": "code",
+   "execution_count": 1,
+   "id": "b924d818",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-07-28T12:43:20.282015Z",
+     "iopub.status.busy": "2026-07-28T12:43:20.281648Z",
+     "iopub.status.idle": "2026-07-28T12:43:20.681577Z",
+     "shell.execute_reply": "2026-07-28T12:43:20.680547Z"
+    },
+    "papermill": {
+     "duration": 0.405873,
+     "end_time": "2026-07-28T12:43:20.683589+00:00",
+     "exception": false,
+     "start_time": "2026-07-28T12:43:20.277716+00:00",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
    "source": [
     "import os\n",
     "from kaggle_secrets import UserSecretsClient\n",
@@ -61,22 +50,268 @@
     "        requests.post(WEBHOOK_URL, json={\"text\": text}, timeout=15)\n",
     "    except Exception as e:\n",
     "        print(\"Slack通知に失敗:\", e)"
-   ],
-   "metadata": {
-    "trusted": true,
-    "execution": {
-     "iopub.status.busy": "2026-07-03T13:37:25.995433Z",
-     "iopub.execute_input": "2026-07-03T13:37:25.995796Z",
-     "iopub.status.idle": "2026-07-03T13:37:26.589706Z",
-     "shell.execute_reply.started": "2026-07-03T13:37:25.995772Z",
-     "shell.execute_reply": "2026-07-03T13:37:26.588887Z"
-    }
-   },
-   "outputs": [],
-   "execution_count": null
+   ]
   },
   {
    "cell_type": "code",
+   "execution_count": 2,
+   "id": "f07c7d22",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-07-28T12:43:20.690990Z",
+     "iopub.status.busy": "2026-07-28T12:43:20.690573Z",
+     "iopub.status.idle": "2026-07-28T12:44:29.781894Z",
+     "shell.execute_reply": "2026-07-28T12:44:29.780491Z"
+    },
+    "papermill": {
+     "duration": 69.097926,
+     "end_time": "2026-07-28T12:44:29.784214+00:00",
+     "exception": false,
+     "start_time": "2026-07-28T12:43:20.686288+00:00",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Requirement already satisfied: torch in /usr/local/lib/python3.12/dist-packages (2.10.0+cu128)\r\n",
+      "Requirement already satisfied: soundfile in /usr/local/lib/python3.12/dist-packages (0.13.1)\r\n",
+      "Requirement already satisfied: transformers in /usr/local/lib/python3.12/dist-packages (5.0.0)\r\n",
+      "Requirement already satisfied: accelerate in /usr/local/lib/python3.12/dist-packages (1.13.0)\r\n",
+      "Requirement already satisfied: filelock in /usr/local/lib/python3.12/dist-packages (from torch) (3.29.0)\r\n",
+      "Requirement already satisfied: typing-extensions>=4.10.0 in /usr/local/lib/python3.12/dist-packages (from torch) (4.15.0)\r\n",
+      "Requirement already satisfied: setuptools in /usr/local/lib/python3.12/dist-packages (from torch) (81.0.0)\r\n",
+      "Requirement already satisfied: sympy>=1.13.3 in /usr/local/lib/python3.12/dist-packages (from torch) (1.14.0)\r\n",
+      "Requirement already satisfied: networkx>=2.5.1 in /usr/local/lib/python3.12/dist-packages (from torch) (3.6.1)\r\n",
+      "Requirement already satisfied: jinja2 in /usr/local/lib/python3.12/dist-packages (from torch) (3.1.6)\r\n",
+      "Requirement already satisfied: fsspec>=0.8.5 in /usr/local/lib/python3.12/dist-packages (from torch) (2025.3.0)\r\n",
+      "Requirement already satisfied: cuda-bindings==12.9.4 in /usr/local/lib/python3.12/dist-packages (from torch) (12.9.4)\r\n",
+      "Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch) (12.8.93)\r\n",
+      "Requirement already satisfied: nvidia-cuda-runtime-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch) (12.8.90)\r\n",
+      "Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch) (12.8.90)\r\n",
+      "Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in /usr/local/lib/python3.12/dist-packages (from torch) (9.10.2.21)\r\n",
+      "Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in /usr/local/lib/python3.12/dist-packages (from torch) (12.8.4.1)\r\n",
+      "Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in /usr/local/lib/python3.12/dist-packages (from torch) (11.3.3.83)\r\n",
+      "Requirement already satisfied: nvidia-curand-cu12==10.3.9.90 in /usr/local/lib/python3.12/dist-packages (from torch) (10.3.9.90)\r\n",
+      "Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in /usr/local/lib/python3.12/dist-packages (from torch) (11.7.3.90)\r\n",
+      "Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in /usr/local/lib/python3.12/dist-packages (from torch) (12.5.8.93)\r\n",
+      "Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in /usr/local/lib/python3.12/dist-packages (from torch) (0.7.1)\r\n",
+      "Requirement already satisfied: nvidia-nccl-cu12==2.27.5 in /usr/local/lib/python3.12/dist-packages (from torch) (2.27.5)\r\n",
+      "Requirement already satisfied: nvidia-nvshmem-cu12==3.4.5 in /usr/local/lib/python3.12/dist-packages (from torch) (3.4.5)\r\n",
+      "Requirement already satisfied: nvidia-nvtx-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch) (12.8.90)\r\n",
+      "Requirement already satisfied: nvidia-nvjitlink-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch) (12.8.93)\r\n",
+      "Requirement already satisfied: nvidia-cufile-cu12==1.13.1.3 in /usr/local/lib/python3.12/dist-packages (from torch) (1.13.1.3)\r\n",
+      "Requirement already satisfied: triton==3.6.0 in /usr/local/lib/python3.12/dist-packages (from torch) (3.6.0)\r\n",
+      "Requirement already satisfied: cuda-pathfinder~=1.1 in /usr/local/lib/python3.12/dist-packages (from cuda-bindings==12.9.4->torch) (1.5.3)\r\n",
+      "Requirement already satisfied: cffi>=1.0 in /usr/local/lib/python3.12/dist-packages (from soundfile) (2.0.0)\r\n",
+      "Requirement already satisfied: numpy in /usr/local/lib/python3.12/dist-packages (from soundfile) (2.0.2)\r\n",
+      "Requirement already satisfied: huggingface-hub<2.0,>=1.3.0 in /usr/local/lib/python3.12/dist-packages (from transformers) (1.11.0)\r\n",
+      "Requirement already satisfied: packaging>=20.0 in /usr/local/lib/python3.12/dist-packages (from transformers) (26.1)\r\n",
+      "Requirement already satisfied: pyyaml>=5.1 in /usr/local/lib/python3.12/dist-packages (from transformers) (6.0.3)\r\n",
+      "Requirement already satisfied: regex!=2019.12.17 in /usr/local/lib/python3.12/dist-packages (from transformers) (2025.11.3)\r\n",
+      "Requirement already satisfied: tokenizers<=0.23.0,>=0.22.0 in /usr/local/lib/python3.12/dist-packages (from transformers) (0.22.2)\r\n",
+      "Requirement already satisfied: typer-slim in /usr/local/lib/python3.12/dist-packages (from transformers) (0.24.0)\r\n",
+      "Requirement already satisfied: safetensors>=0.4.3 in /usr/local/lib/python3.12/dist-packages (from transformers) (0.7.0)\r\n",
+      "Requirement already satisfied: tqdm>=4.27 in /usr/local/lib/python3.12/dist-packages (from transformers) (4.67.3)\r\n",
+      "Requirement already satisfied: psutil in /usr/local/lib/python3.12/dist-packages (from accelerate) (5.9.5)\r\n",
+      "Requirement already satisfied: pycparser in /usr/local/lib/python3.12/dist-packages (from cffi>=1.0->soundfile) (3.0)\r\n",
+      "Requirement already satisfied: hf-xet<2.0.0,>=1.4.3 in /usr/local/lib/python3.12/dist-packages (from huggingface-hub<2.0,>=1.3.0->transformers) (1.4.3)\r\n",
+      "Requirement already satisfied: httpx<1,>=0.23.0 in /usr/local/lib/python3.12/dist-packages (from huggingface-hub<2.0,>=1.3.0->transformers) (0.28.1)\r\n",
+      "Requirement already satisfied: typer in /usr/local/lib/python3.12/dist-packages (from huggingface-hub<2.0,>=1.3.0->transformers) (0.24.2)\r\n",
+      "Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.12/dist-packages (from sympy>=1.13.3->torch) (1.3.0)\r\n",
+      "Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.12/dist-packages (from jinja2->torch) (3.0.3)\r\n",
+      "Requirement already satisfied: anyio in /usr/local/lib/python3.12/dist-packages (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.3.0->transformers) (4.13.0)\r\n",
+      "Requirement already satisfied: certifi in /usr/local/lib/python3.12/dist-packages (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.3.0->transformers) (2026.4.22)\r\n",
+      "Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.12/dist-packages (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.3.0->transformers) (1.0.9)\r\n",
+      "Requirement already satisfied: idna in /usr/local/lib/python3.12/dist-packages (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.3.0->transformers) (3.13)\r\n",
+      "Requirement already satisfied: h11>=0.16 in /usr/local/lib/python3.12/dist-packages (from httpcore==1.*->httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.3.0->transformers) (0.16.0)\r\n",
+      "Requirement already satisfied: click>=8.2.1 in /usr/local/lib/python3.12/dist-packages (from typer->huggingface-hub<2.0,>=1.3.0->transformers) (8.3.3)\r\n",
+      "Requirement already satisfied: shellingham>=1.3.0 in /usr/local/lib/python3.12/dist-packages (from typer->huggingface-hub<2.0,>=1.3.0->transformers) (1.5.4)\r\n",
+      "Requirement already satisfied: rich>=12.3.0 in /usr/local/lib/python3.12/dist-packages (from typer->huggingface-hub<2.0,>=1.3.0->transformers) (13.9.4)\r\n",
+      "Requirement already satisfied: annotated-doc>=0.0.2 in /usr/local/lib/python3.12/dist-packages (from typer->huggingface-hub<2.0,>=1.3.0->transformers) (0.0.4)\r\n",
+      "Requirement already satisfied: markdown-it-py>=2.2.0 in /usr/local/lib/python3.12/dist-packages (from rich>=12.3.0->typer->huggingface-hub<2.0,>=1.3.0->transformers) (4.0.0)\r\n",
+      "Requirement already satisfied: pygments<3.0.0,>=2.13.0 in /usr/local/lib/python3.12/dist-packages (from rich>=12.3.0->typer->huggingface-hub<2.0,>=1.3.0->transformers) (2.20.0)\r\n",
+      "Requirement already satisfied: mdurl~=0.1 in /usr/local/lib/python3.12/dist-packages (from markdown-it-py>=2.2.0->rich>=12.3.0->typer->huggingface-hub<2.0,>=1.3.0->transformers) (0.1.2)\r\n",
+      "Collecting qwen-tts\r\n",
+      "  Downloading qwen_tts-0.1.1-py3-none-any.whl.metadata (61 kB)\r\n",
+      "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m61.4/61.4 kB\u001b[0m \u001b[31m1.7 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\r\n",
+      "\u001b[?25hRequirement already satisfied: librosa in /usr/local/lib/python3.12/dist-packages (0.11.0)\r\n",
+      "Requirement already satisfied: scipy in /usr/local/lib/python3.12/dist-packages (1.16.3)\r\n",
+      "Collecting transformers==4.57.3 (from qwen-tts)\r\n",
+      "  Downloading transformers-4.57.3-py3-none-any.whl.metadata (43 kB)\r\n",
+      "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m44.0/44.0 kB\u001b[0m \u001b[31m2.2 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\r\n",
+      "\u001b[?25hCollecting accelerate==1.12.0 (from qwen-tts)\r\n",
+      "  Downloading accelerate-1.12.0-py3-none-any.whl.metadata (19 kB)\r\n",
+      "Requirement already satisfied: gradio in /usr/local/lib/python3.12/dist-packages (from qwen-tts) (5.50.0)\r\n",
+      "Requirement already satisfied: torchaudio in /usr/local/lib/python3.12/dist-packages (from qwen-tts) (2.10.0+cu128)\r\n",
+      "Requirement already satisfied: soundfile in /usr/local/lib/python3.12/dist-packages (from qwen-tts) (0.13.1)\r\n",
+      "Collecting sox (from qwen-tts)\r\n",
+      "  Downloading sox-1.5.0.tar.gz (63 kB)\r\n",
+      "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m63.9/63.9 kB\u001b[0m \u001b[31m3.4 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\r\n",
+      "\u001b[?25h  Preparing metadata (setup.py) ... \u001b[?25l\u001b[?25hdone\r\n",
+      "Collecting onnxruntime (from qwen-tts)\r\n",
+      "  Downloading onnxruntime-1.28.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (5.5 kB)\r\n",
+      "Requirement already satisfied: einops in /usr/local/lib/python3.12/dist-packages (from qwen-tts) (0.8.2)\r\n",
+      "Requirement already satisfied: numpy>=1.17 in /usr/local/lib/python3.12/dist-packages (from accelerate==1.12.0->qwen-tts) (2.0.2)\r\n",
+      "Requirement already satisfied: packaging>=20.0 in /usr/local/lib/python3.12/dist-packages (from accelerate==1.12.0->qwen-tts) (26.1)\r\n",
+      "Requirement already satisfied: psutil in /usr/local/lib/python3.12/dist-packages (from accelerate==1.12.0->qwen-tts) (5.9.5)\r\n",
+      "Requirement already satisfied: pyyaml in /usr/local/lib/python3.12/dist-packages (from accelerate==1.12.0->qwen-tts) (6.0.3)\r\n",
+      "Requirement already satisfied: torch>=2.0.0 in /usr/local/lib/python3.12/dist-packages (from accelerate==1.12.0->qwen-tts) (2.10.0+cu128)\r\n",
+      "Requirement already satisfied: huggingface_hub>=0.21.0 in /usr/local/lib/python3.12/dist-packages (from accelerate==1.12.0->qwen-tts) (1.11.0)\r\n",
+      "Requirement already satisfied: safetensors>=0.4.3 in /usr/local/lib/python3.12/dist-packages (from accelerate==1.12.0->qwen-tts) (0.7.0)\r\n",
+      "Requirement already satisfied: filelock in /usr/local/lib/python3.12/dist-packages (from transformers==4.57.3->qwen-tts) (3.29.0)\r\n",
+      "Collecting huggingface_hub>=0.21.0 (from accelerate==1.12.0->qwen-tts)\r\n",
+      "  Downloading huggingface_hub-0.36.2-py3-none-any.whl.metadata (15 kB)\r\n",
+      "Requirement already satisfied: regex!=2019.12.17 in /usr/local/lib/python3.12/dist-packages (from transformers==4.57.3->qwen-tts) (2025.11.3)\r\n",
+      "Requirement already satisfied: requests in /usr/local/lib/python3.12/dist-packages (from transformers==4.57.3->qwen-tts) (2.32.4)\r\n",
+      "Requirement already satisfied: tokenizers<=0.23.0,>=0.22.0 in /usr/local/lib/python3.12/dist-packages (from transformers==4.57.3->qwen-tts) (0.22.2)\r\n",
+      "Requirement already satisfied: tqdm>=4.27 in /usr/local/lib/python3.12/dist-packages (from transformers==4.57.3->qwen-tts) (4.67.3)\r\n",
+      "Requirement already satisfied: audioread>=2.1.9 in /usr/local/lib/python3.12/dist-packages (from librosa) (3.1.0)\r\n",
+      "Requirement already satisfied: numba>=0.51.0 in /usr/local/lib/python3.12/dist-packages (from librosa) (0.60.0)\r\n",
+      "Requirement already satisfied: scikit-learn>=1.1.0 in /usr/local/lib/python3.12/dist-packages (from librosa) (1.6.1)\r\n",
+      "Requirement already satisfied: joblib>=1.0 in /usr/local/lib/python3.12/dist-packages (from librosa) (1.5.3)\r\n",
+      "Requirement already satisfied: decorator>=4.3.0 in /usr/local/lib/python3.12/dist-packages (from librosa) (5.3.1)\r\n",
+      "Requirement already satisfied: pooch>=1.1 in /usr/local/lib/python3.12/dist-packages (from librosa) (1.9.0)\r\n",
+      "Requirement already satisfied: soxr>=0.3.2 in /usr/local/lib/python3.12/dist-packages (from librosa) (1.0.0)\r\n",
+      "Requirement already satisfied: typing_extensions>=4.1.1 in /usr/local/lib/python3.12/dist-packages (from librosa) (4.15.0)\r\n",
+      "Requirement already satisfied: lazy_loader>=0.1 in /usr/local/lib/python3.12/dist-packages (from librosa) (0.5)\r\n",
+      "Requirement already satisfied: msgpack>=1.0 in /usr/local/lib/python3.12/dist-packages (from librosa) (1.1.2)\r\n",
+      "Requirement already satisfied: llvmlite<0.44,>=0.43.0dev0 in /usr/local/lib/python3.12/dist-packages (from numba>=0.51.0->librosa) (0.43.0)\r\n",
+      "Requirement already satisfied: platformdirs>=2.5.0 in /usr/local/lib/python3.12/dist-packages (from pooch>=1.1->librosa) (4.9.6)\r\n",
+      "Requirement already satisfied: threadpoolctl>=3.1.0 in /usr/local/lib/python3.12/dist-packages (from scikit-learn>=1.1.0->librosa) (3.6.0)\r\n",
+      "Requirement already satisfied: cffi>=1.0 in /usr/local/lib/python3.12/dist-packages (from soundfile->qwen-tts) (2.0.0)\r\n",
+      "Requirement already satisfied: aiofiles<25.0,>=22.0 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (22.1.0)\r\n",
+      "Requirement already satisfied: anyio<5.0,>=3.0 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (4.13.0)\r\n",
+      "Requirement already satisfied: brotli>=1.1.0 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (1.2.0)\r\n",
+      "Requirement already satisfied: fastapi<1.0,>=0.115.2 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (0.136.1)\r\n",
+      "Requirement already satisfied: ffmpy in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (1.0.0)\r\n",
+      "Requirement already satisfied: gradio-client==1.14.0 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (1.14.0)\r\n",
+      "Requirement already satisfied: groovy~=0.1 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (0.1.2)\r\n",
+      "Requirement already satisfied: httpx<1.0,>=0.24.1 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (0.28.1)\r\n",
+      "Requirement already satisfied: jinja2<4.0 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (3.1.6)\r\n",
+      "Requirement already satisfied: markupsafe<4.0,>=2.0 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (3.0.3)\r\n",
+      "Requirement already satisfied: orjson~=3.0 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (3.11.8)\r\n",
+      "Requirement already satisfied: pandas<3.0,>=1.0 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (2.3.3)\r\n",
+      "Requirement already satisfied: pillow<12.0,>=8.0 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (11.3.0)\r\n",
+      "Requirement already satisfied: pydantic<=2.12.3,>=2.0 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (2.12.3)\r\n",
+      "Requirement already satisfied: pydub in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (0.25.1)\r\n",
+      "Requirement already satisfied: python-multipart>=0.0.18 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (0.0.26)\r\n",
+      "Requirement already satisfied: ruff>=0.9.3 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (0.15.11)\r\n",
+      "Requirement already satisfied: safehttpx<0.2.0,>=0.1.6 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (0.1.7)\r\n",
+      "Requirement already satisfied: semantic-version~=2.0 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (2.10.0)\r\n",
+      "Requirement already satisfied: starlette<1.0,>=0.40.0 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (0.52.1)\r\n",
+      "Requirement already satisfied: tomlkit<0.14.0,>=0.12.0 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (0.13.3)\r\n",
+      "Requirement already satisfied: typer<1.0,>=0.12 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (0.24.2)\r\n",
+      "Requirement already satisfied: uvicorn>=0.14.0 in /usr/local/lib/python3.12/dist-packages (from gradio->qwen-tts) (0.46.0)\r\n",
+      "Requirement already satisfied: fsspec in /usr/local/lib/python3.12/dist-packages (from gradio-client==1.14.0->gradio->qwen-tts) (2025.3.0)\r\n",
+      "Requirement already satisfied: websockets<16.0,>=13.0 in /usr/local/lib/python3.12/dist-packages (from gradio-client==1.14.0->gradio->qwen-tts) (15.0.1)\r\n",
+      "Requirement already satisfied: flatbuffers in /usr/local/lib/python3.12/dist-packages (from onnxruntime->qwen-tts) (25.12.19)\r\n",
+      "Requirement already satisfied: protobuf>=4.25.8 in /usr/local/lib/python3.12/dist-packages (from onnxruntime->qwen-tts) (5.29.5)\r\n",
+      "Requirement already satisfied: setuptools in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (81.0.0)\r\n",
+      "Requirement already satisfied: sympy>=1.13.3 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (1.14.0)\r\n",
+      "Requirement already satisfied: networkx>=2.5.1 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (3.6.1)\r\n",
+      "Requirement already satisfied: cuda-bindings==12.9.4 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (12.9.4)\r\n",
+      "Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (12.8.93)\r\n",
+      "Requirement already satisfied: nvidia-cuda-runtime-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (12.8.90)\r\n",
+      "Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (12.8.90)\r\n",
+      "Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (9.10.2.21)\r\n",
+      "Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (12.8.4.1)\r\n",
+      "Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (11.3.3.83)\r\n",
+      "Requirement already satisfied: nvidia-curand-cu12==10.3.9.90 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (10.3.9.90)\r\n",
+      "Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (11.7.3.90)\r\n",
+      "Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (12.5.8.93)\r\n",
+      "Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (0.7.1)\r\n",
+      "Requirement already satisfied: nvidia-nccl-cu12==2.27.5 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (2.27.5)\r\n",
+      "Requirement already satisfied: nvidia-nvshmem-cu12==3.4.5 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (3.4.5)\r\n",
+      "Requirement already satisfied: nvidia-nvtx-cu12==12.8.90 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (12.8.90)\r\n",
+      "Requirement already satisfied: nvidia-nvjitlink-cu12==12.8.93 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (12.8.93)\r\n",
+      "Requirement already satisfied: nvidia-cufile-cu12==1.13.1.3 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (1.13.1.3)\r\n",
+      "Requirement already satisfied: triton==3.6.0 in /usr/local/lib/python3.12/dist-packages (from torch>=2.0.0->accelerate==1.12.0->qwen-tts) (3.6.0)\r\n",
+      "Requirement already satisfied: cuda-pathfinder~=1.1 in /usr/local/lib/python3.12/dist-packages (from cuda-bindings==12.9.4->torch>=2.0.0->accelerate==1.12.0->qwen-tts) (1.5.3)\r\n",
+      "Requirement already satisfied: idna>=2.8 in /usr/local/lib/python3.12/dist-packages (from anyio<5.0,>=3.0->gradio->qwen-tts) (3.13)\r\n",
+      "Requirement already satisfied: pycparser in /usr/local/lib/python3.12/dist-packages (from cffi>=1.0->soundfile->qwen-tts) (3.0)\r\n",
+      "Requirement already satisfied: typing-inspection>=0.4.2 in /usr/local/lib/python3.12/dist-packages (from fastapi<1.0,>=0.115.2->gradio->qwen-tts) (0.4.2)\r\n",
+      "Requirement already satisfied: annotated-doc>=0.0.2 in /usr/local/lib/python3.12/dist-packages (from fastapi<1.0,>=0.115.2->gradio->qwen-tts) (0.0.4)\r\n",
+      "Requirement already satisfied: certifi in /usr/local/lib/python3.12/dist-packages (from httpx<1.0,>=0.24.1->gradio->qwen-tts) (2026.4.22)\r\n",
+      "Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.12/dist-packages (from httpx<1.0,>=0.24.1->gradio->qwen-tts) (1.0.9)\r\n",
+      "Requirement already satisfied: h11>=0.16 in /usr/local/lib/python3.12/dist-packages (from httpcore==1.*->httpx<1.0,>=0.24.1->gradio->qwen-tts) (0.16.0)\r\n",
+      "Requirement already satisfied: hf-xet<2.0.0,>=1.1.3 in /usr/local/lib/python3.12/dist-packages (from huggingface_hub>=0.21.0->accelerate==1.12.0->qwen-tts) (1.4.3)\r\n",
+      "Requirement already satisfied: python-dateutil>=2.8.2 in /usr/local/lib/python3.12/dist-packages (from pandas<3.0,>=1.0->gradio->qwen-tts) (2.9.0.post0)\r\n",
+      "Requirement already satisfied: pytz>=2020.1 in /usr/local/lib/python3.12/dist-packages (from pandas<3.0,>=1.0->gradio->qwen-tts) (2025.2)\r\n",
+      "Requirement already satisfied: tzdata>=2022.7 in /usr/local/lib/python3.12/dist-packages (from pandas<3.0,>=1.0->gradio->qwen-tts) (2026.1)\r\n",
+      "Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.12/dist-packages (from pydantic<=2.12.3,>=2.0->gradio->qwen-tts) (0.7.0)\r\n",
+      "Requirement already satisfied: pydantic-core==2.41.4 in /usr/local/lib/python3.12/dist-packages (from pydantic<=2.12.3,>=2.0->gradio->qwen-tts) (2.41.4)\r\n",
+      "Requirement already satisfied: charset_normalizer<4,>=2 in /usr/local/lib/python3.12/dist-packages (from requests->transformers==4.57.3->qwen-tts) (3.4.7)\r\n",
+      "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.12/dist-packages (from requests->transformers==4.57.3->qwen-tts) (2.5.0)\r\n",
+      "Requirement already satisfied: click>=8.2.1 in /usr/local/lib/python3.12/dist-packages (from typer<1.0,>=0.12->gradio->qwen-tts) (8.3.3)\r\n",
+      "Requirement already satisfied: shellingham>=1.3.0 in /usr/local/lib/python3.12/dist-packages (from typer<1.0,>=0.12->gradio->qwen-tts) (1.5.4)\r\n",
+      "Requirement already satisfied: rich>=12.3.0 in /usr/local/lib/python3.12/dist-packages (from typer<1.0,>=0.12->gradio->qwen-tts) (13.9.4)\r\n",
+      "Requirement already satisfied: six>=1.5 in /usr/local/lib/python3.12/dist-packages (from python-dateutil>=2.8.2->pandas<3.0,>=1.0->gradio->qwen-tts) (1.17.0)\r\n",
+      "Requirement already satisfied: markdown-it-py>=2.2.0 in /usr/local/lib/python3.12/dist-packages (from rich>=12.3.0->typer<1.0,>=0.12->gradio->qwen-tts) (4.0.0)\r\n",
+      "Requirement already satisfied: pygments<3.0.0,>=2.13.0 in /usr/local/lib/python3.12/dist-packages (from rich>=12.3.0->typer<1.0,>=0.12->gradio->qwen-tts) (2.20.0)\r\n",
+      "Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.12/dist-packages (from sympy>=1.13.3->torch>=2.0.0->accelerate==1.12.0->qwen-tts) (1.3.0)\r\n",
+      "Requirement already satisfied: mdurl~=0.1 in /usr/local/lib/python3.12/dist-packages (from markdown-it-py>=2.2.0->rich>=12.3.0->typer<1.0,>=0.12->gradio->qwen-tts) (0.1.2)\r\n",
+      "Downloading qwen_tts-0.1.1-py3-none-any.whl (113 kB)\r\n",
+      "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m113.5/113.5 kB\u001b[0m \u001b[31m6.1 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\r\n",
+      "\u001b[?25hDownloading accelerate-1.12.0-py3-none-any.whl (380 kB)\r\n",
+      "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m380.9/380.9 kB\u001b[0m \u001b[31m11.6 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\r\n",
+      "\u001b[?25hDownloading transformers-4.57.3-py3-none-any.whl (12.0 MB)\r\n",
+      "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m12.0/12.0 MB\u001b[0m \u001b[31m83.5 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\r\n",
+      "\u001b[?25hDownloading onnxruntime-1.28.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (19.2 MB)\r\n",
+      "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m19.2/19.2 MB\u001b[0m \u001b[31m63.8 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\r\n",
+      "\u001b[?25hDownloading huggingface_hub-0.36.2-py3-none-any.whl (566 kB)\r\n",
+      "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m566.4/566.4 kB\u001b[0m \u001b[31m28.5 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\r\n",
+      "\u001b[?25hBuilding wheels for collected packages: sox\r\n",
+      "  Building wheel for sox (setup.py) ... \u001b[?25l\u001b[?25hdone\r\n",
+      "  Created wheel for sox: filename=sox-1.5.0-py3-none-any.whl size=40127 sha256=990dba3b26c2f41ffceeb1d28a074b442e238621e44f7070d8066e5935c8d603\r\n",
+      "  Stored in directory: /root/.cache/pip/wheels/8c/c7/e7/baea1f7e79b9eb53addc81cc9b827424f4a7d8c9cc18c03659\r\n",
+      "Successfully built sox\r\n",
+      "Installing collected packages: sox, onnxruntime, huggingface_hub, transformers, accelerate, qwen-tts\r\n",
+      "  Attempting uninstall: huggingface_hub\r\n",
+      "    Found existing installation: huggingface_hub 1.11.0\r\n",
+      "    Uninstalling huggingface_hub-1.11.0:\r\n",
+      "      Successfully uninstalled huggingface_hub-1.11.0\r\n",
+      "  Attempting uninstall: transformers\r\n",
+      "    Found existing installation: transformers 5.0.0\r\n",
+      "    Uninstalling transformers-5.0.0:\r\n",
+      "      Successfully uninstalled transformers-5.0.0\r\n",
+      "  Attempting uninstall: accelerate\r\n",
+      "    Found existing installation: accelerate 1.13.0\r\n",
+      "    Uninstalling accelerate-1.13.0:\r\n",
+      "      Successfully uninstalled accelerate-1.13.0\r\n",
+      "Successfully installed accelerate-1.12.0 huggingface_hub-0.36.2 onnxruntime-1.28.0 qwen-tts-0.1.1 sox-1.5.0 transformers-4.57.3\r\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/bin/sh: 1: sox: not found\n",
+      "WARNING:sox:SoX could not be found!\n",
+      "\n",
+      "    If you do not have SoX, proceed here:\n",
+      "     - - - http://sox.sourceforge.net/ - - -\n",
+      "\n",
+      "    If you do (or think that you should) have SoX, double-check your\n",
+      "    path variables.\n",
+      "    \n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      "********\n",
+      "Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.\n",
+      "********\n",
+      " \n"
+     ]
+    }
+   ],
    "source": [
     "!pip install torch soundfile transformers accelerate\n",
     "!pip install qwen-tts librosa scipy\n",
@@ -139,22 +374,29 @@
     "    print(f\"✅ Generated voice saved: {output_path}\")\n",
     "\n",
     "    return str(output_path)"
-   ],
-   "metadata": {
-    "trusted": true,
-    "execution": {
-     "iopub.status.busy": "2026-07-03T13:37:26.591926Z",
-     "iopub.execute_input": "2026-07-03T13:37:26.592134Z",
-     "iopub.status.idle": "2026-07-03T13:38:36.885426Z",
-     "shell.execute_reply.started": "2026-07-03T13:37:26.592114Z",
-     "shell.execute_reply": "2026-07-03T13:38:36.884528Z"
-    }
-   },
-   "outputs": [],
-   "execution_count": null
+   ]
   },
   {
    "cell_type": "code",
+   "execution_count": 3,
+   "id": "c0407f64",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-07-28T12:44:29.795996Z",
+     "iopub.status.busy": "2026-07-28T12:44:29.795111Z",
+     "iopub.status.idle": "2026-07-28T12:44:29.808024Z",
+     "shell.execute_reply": "2026-07-28T12:44:29.807063Z"
+    },
+    "papermill": {
+     "duration": 0.020839,
+     "end_time": "2026-07-28T12:44:29.809817+00:00",
+     "exception": false,
+     "start_time": "2026-07-28T12:44:29.788978+00:00",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
    "source": [
     "import requests\n",
     "from pathlib import Path\n",
@@ -250,22 +492,37 @@
     "        raise Exception(f\"APIエラー: {data}\")\n",
     "\n",
     "    return data"
-   ],
-   "metadata": {
-    "trusted": true,
-    "execution": {
-     "iopub.status.busy": "2026-07-03T13:38:36.886551Z",
-     "iopub.execute_input": "2026-07-03T13:38:36.88722Z",
-     "iopub.status.idle": "2026-07-03T13:38:36.896384Z",
-     "shell.execute_reply.started": "2026-07-03T13:38:36.887182Z",
-     "shell.execute_reply": "2026-07-03T13:38:36.895732Z"
-    }
-   },
-   "outputs": [],
-   "execution_count": null
+   ]
   },
   {
    "cell_type": "code",
+   "execution_count": 4,
+   "id": "3eb17f05",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-07-28T12:44:29.820992Z",
+     "iopub.status.busy": "2026-07-28T12:44:29.820209Z",
+     "iopub.status.idle": "2026-07-28T12:44:30.973624Z",
+     "shell.execute_reply": "2026-07-28T12:44:30.972724Z"
+    },
+    "papermill": {
+     "duration": 1.161115,
+     "end_time": "2026-07-28T12:44:30.975548+00:00",
+     "exception": false,
+     "start_time": "2026-07-28T12:44:29.814433+00:00",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{'items': []}\n"
+     ]
+    }
+   ],
    "source": [
     "import boto3\n",
     "import json\n",
@@ -286,22 +543,40 @@
     "    return json.loads(res[\"Body\"].read().decode(\"utf-8\"))\n",
     "\n",
     "print(fetch_pending_voice_clones())"
-   ],
-   "metadata": {
-    "trusted": true,
-    "execution": {
-     "iopub.status.busy": "2026-07-03T13:38:36.897289Z",
-     "iopub.execute_input": "2026-07-03T13:38:36.897929Z",
-     "iopub.status.idle": "2026-07-03T13:38:38.709375Z",
-     "shell.execute_reply.started": "2026-07-03T13:38:36.897895Z",
-     "shell.execute_reply": "2026-07-03T13:38:38.708549Z"
-    }
-   },
-   "outputs": [],
-   "execution_count": null
+   ]
   },
   {
    "cell_type": "code",
+   "execution_count": 5,
+   "id": "7604929b",
+   "metadata": {
+    "_cell_guid": "b1076dfc-b9ad-4769-8c92-a6c4dae69d19",
+    "_uuid": "8f2839f25d086af736a60e9eeb907d3b93b6e0e5",
+    "execution": {
+     "iopub.execute_input": "2026-07-28T12:44:30.986283Z",
+     "iopub.status.busy": "2026-07-28T12:44:30.985845Z",
+     "iopub.status.idle": "2026-07-28T12:44:31.422043Z",
+     "shell.execute_reply": "2026-07-28T12:44:31.420705Z"
+    },
+    "papermill": {
+     "duration": 0.443819,
+     "end_time": "2026-07-28T12:44:31.423954+00:00",
+     "exception": false,
+     "start_time": "2026-07-28T12:44:30.980135+00:00",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      "完了\n"
+     ]
+    }
+   ],
    "source": [
     "import shutil\n",
     "import time\n",
@@ -363,21 +638,49 @@
     "        f\":rotating_light: voice-clone-task-by-T4 が失敗しました\\n```\\n{tb[-3000:]}\\n```\"\n",
     "    )\n",
     "    raise\n"
-   ],
-   "metadata": {
-    "_uuid": "8f2839f25d086af736a60e9eeb907d3b93b6e0e5",
-    "_cell_guid": "b1076dfc-b9ad-4769-8c92-a6c4dae69d19",
-    "trusted": true,
-    "execution": {
-     "iopub.status.busy": "2026-07-03T13:39:04.364232Z",
-     "iopub.execute_input": "2026-07-03T13:39:04.365163Z",
-     "iopub.status.idle": "2026-07-03T13:42:23.047279Z",
-     "shell.execute_reply.started": "2026-07-03T13:39:04.365128Z",
-     "shell.execute_reply": "2026-07-03T13:42:23.046365Z"
-    }
-   },
-   "outputs": [],
-   "execution_count": null
+   ]
   }
- ]
+ ],
+ "metadata": {
+  "kaggle": {
+   "accelerator": "nvidiaTeslaT4",
+   "dataSources": [],
+   "dockerImageVersionId": 31430,
+   "isGpuEnabled": true,
+   "isInternetEnabled": true,
+   "language": "python",
+   "sourceType": "notebook"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.13"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 77.296697,
+   "end_time": "2026-07-28T12:44:34.586838+00:00",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "__notebook__.ipynb",
+   "output_path": "__notebook__.ipynb",
+   "parameters": {},
+   "start_time": "2026-07-28T12:43:17.290141+00:00",
+   "version": "2.7.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
 }
