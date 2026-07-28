@@ -69,6 +69,11 @@ def main() -> None:
     ap.add_argument("notebook", choices=NOTEBOOKS, help="実行するノートブック")
     ap.add_argument("--no-gpu", action="store_true", help="GPU を使わない")
     ap.add_argument("--wait", action="store_true", help="完了までステータスをポーリング")
+    ap.add_argument(
+        "--skip-if-busy",
+        action="store_true",
+        help="前回の実行がまだ終わっていなければトリガーせずにスキップする",
+    )
     args = ap.parse_args()
 
     # 認証は import 時ではなく明示的に行う（未設定なら分かりやすく落ちる）
@@ -82,6 +87,14 @@ def main() -> None:
     src = repo / code_file
     if not src.exists():
         sys.exit(f"ノートブックが見つかりません: {src}")
+
+    # 実行中なら二重起動しない（前回が終端状態のときだけ走らせる）
+    if args.skip_if_busy:
+        cur = status_str(api.kernels_status(f"{USER}/{slug}"))
+        if not any(t in cur for t in TERMINAL):
+            print(f"skip: 前回の実行が未完了のためトリガーしません (status={cur})")
+            return
+        print(f"前回は終了済み (status={cur}) -> 実行します")
 
     # kernel-metadata.json + code_file を一時フォルダに用意して push
     with tempfile.TemporaryDirectory() as tmp:

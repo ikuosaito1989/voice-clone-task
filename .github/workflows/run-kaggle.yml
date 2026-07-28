@@ -3,9 +3,9 @@ name: Run Kaggle notebook
 # スケジュール実行 ＋ 手動実行
 on:
   schedule:
-    # cron は UTC。毎時0分に実行（1日24回）。
-    # 頻度を変えるにはこの行を編集する（例: 3時間おき -> "0 */3 * * *"）。
-    - cron: "0 * * * *"
+    # cron は UTC。10分おきに実行。
+    # ただし前回の Kaggle 実行がまだ終わっていなければ --skip-if-busy でスキップする。
+    - cron: "*/10 * * * *"
   workflow_dispatch:
     inputs:
       notebook:
@@ -43,4 +43,5 @@ jobs:
         run: |
           python automation/run_notebook.py \
             "${{ github.event.inputs.notebook || 't4' }}" \
+            --skip-if-busy \
             ${{ github.event.inputs.no_gpu == 'true' && '--no-gpu' || '' }}
