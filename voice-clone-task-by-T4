@@ -50,7 +50,17 @@
     "R2_ACCESS_KEY = user_secrets.get_secret(\"r2_accesskey\")\n",
     "R2_SECRET_KEY = user_secrets.get_secret(\"r2_secretkey\")\n",
     "R2_BUCKET_NAME = user_secrets.get_secret(\"r2_bucket_name\")\n",
-    "R2_ENDPOINT = f\"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com\""
+    "R2_ENDPOINT = f\"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com\"\n",
+    "\n",
+    "WEBHOOK_URL = user_secrets.get_secret(\"webhook_url\")\n",
+    "\n",
+    "\n",
+    "def notify_slack(text: str):\n",
+    "    import requests\n",
+    "    try:\n",
+    "        requests.post(WEBHOOK_URL, json={\"text\": text}, timeout=15)\n",
+    "    except Exception as e:\n",
+    "        print(\"Slack通知に失敗:\", e)"
    ],
    "metadata": {
     "trusted": true,
@@ -342,7 +352,17 @@
     "\n",
     "    print(\"\\n完了\")\n",
     "\n",
-    "main()"
+    "import traceback\n",
+    "\n",
+    "try:\n",
+    "    main()\n",
+    "except Exception:\n",
+    "    tb = traceback.format_exc()\n",
+    "    print(tb)\n",
+    "    notify_slack(\n",
+    "        f\":rotating_light: voice-clone-task-by-T4 が失敗しました\\n```\\n{tb[-3000:]}\\n```\"\n",
+    "    )\n",
+    "    raise\n"
    ],
    "metadata": {
     "_uuid": "8f2839f25d086af736a60e9eeb907d3b93b6e0e5",
