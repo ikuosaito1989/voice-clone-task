@@ -28,12 +28,11 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install deps
-        run: |
-          pip install --quiet kaggle boto3 playwright
-          python -m playwright install --with-deps chromium
+      # 軽い依存だけ先に入れて pending / busy をチェック。
+      # 重い chromium 導入は should_run=true のときだけに絞る（空実行を軽くする）。
+      - name: Install check deps
+        run: pip install --quiet kaggle boto3
 
-      # pending が無い / 前回実行中なら should_run=false を出して以降をスキップ
       - name: Check pending / busy
         id: check
         env:
@@ -48,12 +47,14 @@ jobs:
             "${{ github.event.inputs.notebook || 't4' }}" \
             --check-only --skip-if-empty --skip-if-busy
 
-      # GPU 機種(T4)を選ぶため、API push ではなく Kaggle UI を Playwright で操作して実行
+      # 仕事がある時だけ Playwright を用意して、Kaggle UI から Save & Run All（T4）を実行
       - name: Trigger Save & Run All (UI / T4)
         if: steps.check.outputs.should_run == 'true'
         env:
           KAGGLE_STATE_JSON: ${{ secrets.KAGGLE_STATE_JSON }}
           HEADLESS: "1"
         run: |
+          pip install --quiet playwright
+          python -m playwright install --with-deps chromium
           python automation/trigger_via_ui.py \
             "${{ github.event.inputs.notebook || 't4' }}"
