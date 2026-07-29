@@ -61,3 +61,14 @@ jobs:
           python -m playwright install --with-deps chromium
           python automation/trigger_via_ui.py \
             "${{ github.event.inputs.notebook || 't4' }}"
+
+      # 失敗（cookie 失効など）に確実に気づけるよう Slack へ通知
+      - name: Notify Slack on failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          curl -s -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\":rotating_light: Kaggle 自動実行が失敗しました（cookie 失効の可能性）。kaggle-state.json を取り直して GitHub Secret の KAGGLE_STATE_JSON を更新してください。\n${RUN_URL}\"}" \
+            "$SLACK_WEBHOOK_URL"
