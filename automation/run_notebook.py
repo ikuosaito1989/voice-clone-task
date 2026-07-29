@@ -37,6 +37,10 @@ NOTEBOOKS = {
 # 実行完了とみなすステータス（部分一致で判定。enum 表記 KernelWorkerStatus.COMPLETE 等に対応）
 TERMINAL = ("complete", "error", "cancel")
 
+# secrets を渡す private データセット。API push では Kaggle Secrets が引き継がれないため、
+# 認証情報はこのデータセット経由で notebook に渡す（notebook 側で読む）。
+DATASET_SOURCES = ["lahylme/voice-clone-secrets"]
+
 
 def pending_has_items() -> bool:
     """R2 の pending.json を見て処理対象があるか返す。
@@ -75,7 +79,7 @@ def build_metadata(slug: str, code_file: str, gpu: bool) -> dict:
         "is_private": True,
         "enable_gpu": gpu,
         "enable_internet": True,
-        "dataset_sources": [],
+        "dataset_sources": DATASET_SOURCES,
         "kernel_sources": [],
         "competition_sources": [],
     }
