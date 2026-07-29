@@ -68,42 +68,65 @@ def main() -> None:
         page.get_by_role("button", name="Save Version").first.wait_for()
         page.wait_for_timeout(5_000)
 
-        # 0) Cookie 同意バナーを閉じる（残っていると確定ボタンのクリックを奪う）
-        for label in ("OK, Got it.", "OK, Got it", "Got it", "Accept"):
-            try:
-                page.get_by_text(label, exact=False).first.click(timeout=2_500)
-                print(f"cookie バナーを閉じた: {label}")
+        # headless CI では「ダイアログは閉じたのにコミットされない」ことがあるため、
+        # クリックして終わりにせず Kaggle API で RUNNING を確認し、駄目ならリトライする。
+        for attempt in range(1, 4):
+            _dismiss_cookie_banner(page)
+            _click_save_and_run_all(page)
+            if _wait_running(slug, timeout_s=120):
+                print(f"コミット成功（RUNNING を確認・試行 {attempt}）")
                 break
-            except PWTimeout:
-                continue
-
-        # 1) Save Version ダイアログを開く
-        page.get_by_role("button", name="Save Version").first.click()
-
-        # 2) VERSION TYPE が "Save & Run All (Commit)"（既定）であることを確認。
-        #    もし Quick Save になっていたら実行されないので、その場合は明示的に選び直す。
-        try:
-            page.wait_for_selector("text=Save & Run All (Commit)", timeout=10_000)
-        except PWTimeout:
-            _fail(page, "VERSION TYPE が Save & Run All になっていません")
-
-        # 3) 確定（accessible name がちょうど "Save" のボタンは確定ボタン1つだけ）
-        confirm = page.get_by_role("button", name="Save", exact=True)
-        if confirm.is_disabled():
-            _fail(page, "確定ボタン(Save)が無効です")
-        confirm.click()
-
-        # 4) ダイアログ(「Save version」ヘッダ)が閉じたらコミット受理とみなす
-        try:
-            page.get_by_role("heading", name="Save version").wait_for(
-                state="hidden", timeout=30_000
-            )
-            print("Save & Run All を受理しました（ダイアログが閉じた）")
-        except PWTimeout:
-            _fail(page, "ダイアログが閉じませんでした（確定に失敗した可能性）")
+            print(f"RUNNING を確認できませんでした（試行 {attempt}/3）。リロードして再試行。")
+            page.reload(wait_until="domcontentloaded")
+            page.get_by_role("button", name="Save Version").first.wait_for()
+            page.wait_for_timeout(5_000)
+        else:
+            _fail(page, "3回試しても実行が始まりませんでした")
 
         _shot(page, "trigger-ok.png")
         browser.close()
+
+
+def _dismiss_cookie_banner(page) -> None:
+    """Cookie 同意バナーを閉じる（残っていると確定ボタンのクリックを奪う）。"""
+    for label in ("OK, Got it.", "OK, Got it", "Got it", "Accept"):
+        try:
+            page.get_by_text(label, exact=False).first.click(timeout=2_500)
+            print(f"cookie バナーを閉じた: {label}")
+            return
+        except PWTimeout:
+            continue
+
+
+def _click_save_and_run_all(page) -> None:
+    """Save Version ダイアログを開き、Save & Run All (Commit) で確定する。"""
+    page.get_by_role("button", name="Save Version").first.click()
+    try:
+        page.wait_for_selector("text=Save & Run All (Commit)", timeout=10_000)
+    except PWTimeout:
+        _fail(page, "VERSION TYPE が Save & Run All になっていません")
+    confirm = page.get_by_role("button", name="Save", exact=True)
+    if confirm.is_disabled():
+        _fail(page, "確定ボタン(Save)が無効です")
+    confirm.click()
+
+
+def _wait_running(slug: str, timeout_s: int) -> bool:
+    """Kaggle API で新しい実行が RUNNING/QUEUED になるまで待つ（コミット成功の確認）。"""
+    import time
+
+    from kaggle.api.kaggle_api_extended import KaggleApi
+
+    api = KaggleApi()
+    api.authenticate()
+    deadline = time.time() + timeout_s
+    while time.time() < deadline:
+        st = api.kernels_status(f"{USER}/{slug}")
+        s = str(st.get("status") if isinstance(st, dict) else st).lower()
+        if "running" in s or "queued" in s:
+            return True
+        time.sleep(10)
+    return False
 
 
 def _shot(page, name: str) -> None:
