@@ -19,7 +19,9 @@ Kaggle への反映は `.ipynb` を **File Import** で読み込ませる（GitH
 ```
 R2 の pending.json を取得
       ↓（未処理 item ごとに）
-neglegere.com にログイン → 参照音声をダウンロード
+neglegere.com にログイン → start API で生成中に更新
+      ↓（先に開始済みならスキップ）
+pending.json から除外 → 参照音声をダウンロード
       ↓
 Qwen3-TTS でクローン音声を生成
       ↓
@@ -32,7 +34,7 @@ Qwen3-TTS でクローン音声を生成
 
 - **cell 0** … Secrets 読み込み、定数定義、`notify_slack()`
 - **cell 1** … `generate_qwen_voice()`（Qwen3-TTS での音声生成）
-- **cell 2** … `neglegere.com` API クライアント（login / pending / download / upload）
+- **cell 2** … `neglegere.com` API クライアント（login / pending / start / download / upload）
 - **cell 3** … R2 から pending キューを取得
 - **cell 4** … `main()` メインループ
 

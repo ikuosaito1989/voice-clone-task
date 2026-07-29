@@ -1,7 +1,7 @@
 # voice-clone-task
 
 Kaggle Notebook のソースを管理するリポジトリ。
-Kaggle への反映は **`.ipynb` を File Import** で行う（GitHub の Push/Pull 連携は使っていない）。
+`.ipynb` が唯一の実体で、Kaggle への反映は **`automation/run_notebook.py` の API push** で行う（下記「Kaggle への反映」参照）。
 
 ## ファイル構成
 
@@ -14,9 +14,24 @@ Kaggle への反映は **`.ipynb` を File Import** で行う（GitHub の Push/
 
 ## 編集ルール
 
-- 編集対象は **`.ipynb` ファイルそのもの**。編集したら Kaggle に File Import で読み込ませる。
+- 編集対象は **`.ipynb` ファイルそのもの**。編集したら git push ＋ Kaggle へ反映する。
 - JSON を直接いじるときは構造を壊さないよう注意。整形の推奨形式は
   **インデント付き JSON ＋ 各セルの `source` を行ごとの配列**（Kaggle も読める標準 ipynb）。
+
+## Kaggle への反映（Claude Code / Codex 共通）
+
+`.ipynb` を編集しても Kaggle には自動同期されない。反映するには API push する:
+
+```bash
+pip install --quiet kaggle          # 未導入なら
+python automation/run_notebook.py t4   # by-T4 を反映（main で voice-clone-task.ipynb）
+```
+
+- **認証はマシン単位の `~/.kaggle/kaggle.json`**（Kaggle の Settings → API → "Create **Legacy** API Key" で取得）。
+  ツール非依存なので、同じマシンで動く Codex でもそのまま使える。環境変数 `KAGGLE_USERNAME` / `KAGGLE_KEY` でも可。
+- **反映は pending が 0 件のときに行う**。pending に item があると、その push で走る run は P100 が割り当たり失敗する（ただしコードは version として保存される）。
+- Kaggle のユーザ名は `lahylme`（GitHub の `ikuosaito1989` とは別）。kernel は `lahylme/voice-clone-task-by-t4`。
+- 定期実行の起動は別系統（Cloudflare Worker cron → GitHub Actions → Playwright で T4 実行）。詳細は `automation/README.md`。
 
 ## Slack エラー通知
 
