@@ -28,28 +28,37 @@ jobs:
         with:
           python-version: "3.12"
 
-      # 軽い依存だけ先に入れて pending / busy をチェック。
-      # 重い chromium 導入は should_run=true のときだけに絞る（空実行を軽くする）。
-      - name: Install check deps
-        run: pip install --quiet kaggle boto3
-
-      - name: Check pending / busy
-        id: check
+      # まず boto3 だけで pending.json を確認。0件なら以降を全てスキップし、
+      # kaggle も playwright も入れずに終了する（空実行を最小コストに）。
+      - name: Check pending
+        id: pending
         env:
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY: ${{ secrets.R2_ACCESS_KEY }}
           R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
           R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
         run: |
+          pip install --quiet boto3
           python automation/run_notebook.py \
             "${{ github.event.inputs.notebook || 't4' }}" \
-            --check-only --skip-if-empty --skip-if-busy
+            --check-only --skip-if-empty
 
-      # 仕事がある時だけ Playwright を用意して、Kaggle UI から Save & Run All（T4）を実行
+      # pending がある時だけ kaggle を入れて、実行中(busy)でないか確認
+      - name: Check busy
+        id: busy
+        if: steps.pending.outputs.should_run == 'true'
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+        run: |
+          pip install --quiet kaggle
+          python automation/run_notebook.py \
+            "${{ github.event.inputs.notebook || 't4' }}" \
+            --check-only --skip-if-busy
+
+      # pending あり & 実行中でない時だけ Playwright で Save & Run All（T4）を実行
       - name: Trigger Save & Run All (UI / T4)
-        if: steps.check.outputs.should_run == 'true'
+        if: steps.pending.outputs.should_run == 'true' && steps.busy.outputs.should_run == 'true'
         env:
           KAGGLE_STATE_JSON: ${{ secrets.KAGGLE_STATE_JSON }}
           # RUNNING 確認（コミット成功検証）のため Kaggle API 認証も渡す
@@ -57,7 +66,7 @@ jobs:
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
           HEADLESS: "1"
         run: |
-          pip install --quiet playwright
+          pip install --quiet kaggle playwright
           python -m playwright install --with-deps chromium
           python automation/trigger_via_ui.py \
             "${{ github.event.inputs.notebook || 't4' }}"
