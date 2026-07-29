@@ -1,11 +1,9 @@
 name: Run Kaggle notebook
 
-# スケジュール実行 ＋ 手動実行
+# 実行は Cloudflare Worker cron から workflow_dispatch で叩かれる。
+# GitHub 自身の schedule は高頻度だと発火しないため backstop 扱い。
 on:
   schedule:
-    # cron は UTC。10分間隔だが、混雑するキリの良い時刻(:00,:10..)を避けて
-    # 分をずらしている（GitHub のスケジュール遅延・ドロップを軽減する狙い）。
-    # 空なら --skip-if-empty、実行中なら --skip-if-busy でスキップする。
     - cron: "3,13,23,33,43,53 * * * *"
   workflow_dispatch:
     inputs:
@@ -14,12 +12,8 @@ on:
         type: choice
         default: t4
         options: [t4, main]
-      no_gpu:
-        description: "GPU を使わない"
-        type: boolean
-        default: false
 
-# 同時実行を抑止（前回が走っている間は待つ／新しい方を優先しない）
+# 同時実行を抑止（前回が走っている間は待つ）
 concurrency:
   group: run-kaggle
   cancel-in-progress: false
@@ -35,13 +29,16 @@ jobs:
           python-version: "3.12"
 
       - name: Install deps
-        run: pip install --quiet kaggle boto3
+        run: |
+          pip install --quiet kaggle boto3 playwright
+          python -m playwright install --with-deps chromium
 
-      - name: Trigger Save & Run All
+      # pending が無い / 前回実行中なら should_run=false を出して以降をスキップ
+      - name: Check pending / busy
+        id: check
         env:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
-          # R2 の pending を起動前にチェックするための認証（空なら Kaggle を起動しない）
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY: ${{ secrets.R2_ACCESS_KEY }}
           R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
@@ -49,6 +46,14 @@ jobs:
         run: |
           python automation/run_notebook.py \
             "${{ github.event.inputs.notebook || 't4' }}" \
-            --skip-if-empty \
-            --skip-if-busy \
-            ${{ github.event.inputs.no_gpu == 'true' && '--no-gpu' || '' }}
+            --check-only --skip-if-empty --skip-if-busy
+
+      # GPU 機種(T4)を選ぶため、API push ではなく Kaggle UI を Playwright で操作して実行
+      - name: Trigger Save & Run All (UI / T4)
+        if: steps.check.outputs.should_run == 'true'
+        env:
+          KAGGLE_STATE_JSON: ${{ secrets.KAGGLE_STATE_JSON }}
+          HEADLESS: "1"
+        run: |
+          python automation/trigger_via_ui.py \
+            "${{ github.event.inputs.notebook || 't4' }}"

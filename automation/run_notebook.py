@@ -51,9 +51,9 @@ def pending_has_items() -> bool:
     """
     import os
 
-    import boto3
-
     try:
+        import boto3
+
         account = os.environ["R2_ACCOUNT_ID"]
         s3 = boto3.client(
             "s3",
@@ -95,6 +95,32 @@ def status_str(st) -> str:
     return str(st).split(".")[-1].strip().lower()
 
 
+def _emit_output(name: str, value: str) -> None:
+    """GitHub Actions の step output に書き出す（GITHUB_OUTPUT が無ければ何もしない）。"""
+    import os
+
+    path = os.environ.get("GITHUB_OUTPUT")
+    if path:
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(f"{name}={value}\n")
+
+
+def check_should_run(args) -> tuple[bool, str]:
+    """pending / busy を見て「今トリガーすべきか」と理由を返す。"""
+    if args.skip_if_empty and not pending_has_items():
+        return False, "(pending 0件)"
+    if args.skip_if_busy:
+        from kaggle.api.kaggle_api_extended import KaggleApi
+
+        api = KaggleApi()
+        api.authenticate()
+        _, slug = NOTEBOOKS[args.notebook]
+        cur = status_str(api.kernels_status(f"{USER}/{slug}"))
+        if not any(t in cur for t in TERMINAL):
+            return False, f"(実行中 {cur})"
+    return True, ""
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Kaggle ノートブックを Save & Run All で実行")
     ap.add_argument("notebook", choices=NOTEBOOKS, help="実行するノートブック")
@@ -110,7 +136,19 @@ def main() -> None:
         action="store_true",
         help="R2 の pending が 0 件なら Kaggle を起動せずにスキップする",
     )
+    ap.add_argument(
+        "--check-only",
+        action="store_true",
+        help="push せず、実行すべきか(pending/busy)だけ判定して should_run を出力する",
+    )
     args = ap.parse_args()
+
+    # 判定だけ（Playwright 側でトリガーする構成用）。GITHUB_OUTPUT に should_run を書く。
+    if args.check_only:
+        should_run, reason = check_should_run(args)
+        print(f"should_run={str(should_run).lower()} {reason}".rstrip())
+        _emit_output("should_run", str(should_run).lower())
+        return
 
     # pending が空なら Kaggle を起動しない（GPU クォータを一切使わない）
     if args.skip_if_empty and not pending_has_items():

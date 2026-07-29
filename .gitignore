@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 .kaggle/
 kaggle.json
+# Playwright: Kaggle セッション（cookie）とデバッグ用スクショ
+kaggle-state.json
+*-state.json
+trigger-*.png
