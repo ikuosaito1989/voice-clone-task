@@ -1,10 +1,7 @@
 name: Run Kaggle notebook
 
 # 実行は Cloudflare Worker cron から workflow_dispatch で叩かれる。
-# GitHub 自身の schedule は高頻度だと発火しないため backstop 扱い。
 on:
-  schedule:
-    - cron: "3,13,23,33,43,53 * * * *"
   workflow_dispatch:
     inputs:
       notebook:
