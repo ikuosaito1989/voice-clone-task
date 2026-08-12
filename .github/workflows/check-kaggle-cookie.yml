@@ -1,0 +1,35 @@
+name: Check Kaggle cookie expiry
+
+# cookie が切れてから気づくと自動実行が止まるので、切れる前に Slack で予告する。
+on:
+  schedule:
+    # 毎日 00:00 UTC（JST 09:00）。日次なら GitHub の schedule でも十分発火する。
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Check cookie expiry
+        id: cookie
+        env:
+          KAGGLE_STATE_JSON: ${{ secrets.KAGGLE_STATE_JSON }}
+        run: python automation/check_cookie_expiry.py --warn-days 7
+
+      - name: Notify Slack
+        if: steps.cookie.outputs.should_warn == 'true'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          DAYS_LEFT: ${{ steps.cookie.outputs.days_left }}
+          EXPIRES_AT: ${{ steps.cookie.outputs.expires_at }}
+        run: |
+          text=":hourglass: Kaggle の cookie があと ${DAYS_LEFT} 日で失効します（${EXPIRES_AT}）。\n切れる前に取り直してください:\n\`\`\`\ncd ~/git/voice-clone-task\npython automation/kaggle_capture_state.py\ngh secret set KAGGLE_STATE_JSON < kaggle-state.json\n\`\`\`"
+          curl -s -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"${text}\"}" "$SLACK_WEBHOOK_URL"
