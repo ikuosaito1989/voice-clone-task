@@ -39,6 +39,23 @@ python automation/run_notebook.py main --no-gpu
 - `t4` → `voice-clone-task-by-T4.ipynb`、`main` → `voice-clone-task.ipynb`
 - push すると Kaggle サーバ側でバックグラウンド実行される。ローカルは閉じてよい。
 
+## cookie の失効チェック
+
+UI 経由の実行（`trigger_via_ui.py`）に使う `kaggle-state.json` の cookie は 2〜4 週間で失効する。
+切れてから気づくと自動実行が止まるので、`.github/workflows/check-kaggle-cookie.yml` が
+日次（JST 09:00）で残り日数を見て、**7 日以内なら Slack に予告**する。
+
+```bash
+python automation/check_cookie_expiry.py --warn-days 7   # 手元でも確認できる
+```
+
+通知が来たら取り直して Secret を更新する:
+
+```bash
+python automation/kaggle_capture_state.py
+gh secret set KAGGLE_STATE_JSON < kaggle-state.json
+```
+
 ## 前提・注意
 
 - **Secrets**: 実行対象ノートブックに `webhook_url` などの Secrets が Kaggle 側でアタッチ済みであること（アタッチはバージョン間で維持される）。
