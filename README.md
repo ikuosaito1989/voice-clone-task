@@ -61,3 +61,4 @@ Kaggle の **Add-ons → Secrets** に以下を登録し、Notebook にアタッ
 - JSON を直接編集するときは構造を壊さないよう注意。推奨整形はインデント付き JSON ＋ 各セルの `source` を行ごとの配列。
 
 詳細な作業ルールは [AGENTS.md](./AGENTS.md) を参照。
+
