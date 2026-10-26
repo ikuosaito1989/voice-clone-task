@@ -49,7 +49,10 @@ UI 経由の実行（`trigger_via_ui.py`）に使う `kaggle-state.json` の coo
 python automation/check_cookie_expiry.py --warn-days 7   # 手元でも確認できる
 ```
 
-通知が来たら取り直して Secret を更新する:
+iPhone から更新する場合は [Codespaces での更新手順](MOBILE_COOKIE_REFRESH.md) を使う。
+PC でも `python automation/kaggle_capture_state.py --upload` で取得から Secret 更新まで実行できる。
+
+従来のファイル経由で更新する場合:
 
 ```bash
 python automation/kaggle_capture_state.py
